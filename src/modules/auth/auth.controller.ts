@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dtos/signup.dto';
 import { SignInDto } from './dtos/signin.dto';
@@ -21,13 +21,13 @@ export class AuthController {
 
   @Get('verify-access-token')
   @UseGuards(JwtAccessAuthGuard)
-  verifyAccessToken() {
-    return { message: 'Access token is valid' };
+  verifyAccessToken(@Req() req) {
+    return { user: req.user };
   }
 
   @Get('verify-refresh-token')
   @UseGuards(JwtRefreshAuthGuard)
-  verifyRefreshToken() {
-    return { message: 'Refresh token is valid' };
+  verifyRefreshToken(@Req() req) {
+    return { user: req.user };
   }
 }
