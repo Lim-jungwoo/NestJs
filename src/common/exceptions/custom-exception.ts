@@ -2,7 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { LANGUAGES } from 'src/constants/lang-constants';
 import { getErrorMessage } from '../errors/error-utils';
 
-export class JwtException extends HttpException {
+export class CustomException extends HttpException {
   constructor(
     key: string,
     status: HttpStatus = HttpStatus.BAD_REQUEST,

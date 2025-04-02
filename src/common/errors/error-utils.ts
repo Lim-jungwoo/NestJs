@@ -1,10 +1,12 @@
 import { LANGUAGES } from 'src/constants/lang-constants';
 import { ERROR_CODES } from './error-codes';
 import { JWT_ERROR_CODES } from './jwt-error-codes';
+import { LOGIN_ERROR_CODES } from './login-error-codes';
 
 const ERROR_CODES_MAP = new Map([
   ...Object.entries(ERROR_CODES),
   ...Object.entries(JWT_ERROR_CODES),
+  ...Object.entries(LOGIN_ERROR_CODES),
 ]);
 
 export function getErrorMessage(

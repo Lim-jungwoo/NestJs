@@ -1,19 +1,12 @@
 import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtException } from 'src/common/exceptions/jwt-exception';
 import { JWT_ERROR_CODES } from 'src/common/errors/jwt-error-codes';
 import { handleJwtError } from 'src/common/errors/jwt-error-utils';
-import { GeneralException } from 'src/common/exceptions/general-exception';
-import { ERROR_CODES } from 'src/common/errors/error-codes';
+import { CustomException } from 'src/common/exceptions/custom-exception';
 
 @Injectable()
 export class JwtAccessAuthGuard extends AuthGuard('jwt-access') {
-  constructor(
-    private jwtService: JwtService,
-    private configService: ConfigService,
-  ) {
+  constructor() {
     super();
   }
 
@@ -36,7 +29,7 @@ export class JwtAccessAuthGuard extends AuthGuard('jwt-access') {
         JWT_ERROR_CODES.AUTHENTICATION_SYSTEM_ERROR.messages.ko,
         err,
       );
-      throw new JwtException(
+      throw new CustomException(
         JWT_ERROR_CODES.AUTHENTICATION_SYSTEM_ERROR.code,
         HttpStatus.UNAUTHORIZED,
       );
@@ -47,7 +40,7 @@ export class JwtAccessAuthGuard extends AuthGuard('jwt-access') {
         JWT_ERROR_CODES.VERIFICATION_FAILED.messages.ko,
         info?.message,
       );
-      throw new JwtException(
+      throw new CustomException(
         info?.message || JWT_ERROR_CODES.VERIFICATION_FAILED.code,
         HttpStatus.UNAUTHORIZED,
       );
