@@ -1,9 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './strategies/jwt-access.strategy';
 import { SignUpDto } from './dtos/signup.dto';
 import { SignInDto } from './dtos/signin.dto';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { CustomException } from 'src/common/exceptions/custom-exception';
+import { LOGIN_ERROR_CODES } from 'src/common/errors/login-error-codes';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +37,7 @@ export class AuthService {
     );
 
     if (existingIds.has(signUpDto.id)) {
-      throw new HttpException('Id is already exists', HttpStatus.BAD_REQUEST);
+      throw new CustomException(LOGIN_ERROR_CODES.USER_ID_ALREADY_EXISTS.code);
     }
 
     this.signUpData.push(signUpDto);
@@ -52,7 +54,7 @@ export class AuthService {
       const storedPassword = userMap.get(signInDto.id);
 
       if (storedPassword !== signInDto.password) {
-        throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+        throw new CustomException(LOGIN_ERROR_CODES.INVALID_PASSWORD.code);
       }
 
       const accessToken = this.generateJwtAccessToken({ sub: signInDto.id });
@@ -64,6 +66,6 @@ export class AuthService {
       };
     }
 
-    throw new HttpException("Id doesn't exist", HttpStatus.BAD_REQUEST);
+    throw new CustomException(LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code);
   }
 }
