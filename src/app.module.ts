@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import * as path from 'path';
 import { AuthModule } from './modules/auth/auth.module';
+import { DataBaseModule } from './database/database.module';
 
 console.log('=============================================================');
 console.log('NODE_ENV: ', process.env.NODE_ENV);
@@ -21,6 +22,7 @@ console.log('=============================================================');
     }),
 
     AuthModule,
+    DataBaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
