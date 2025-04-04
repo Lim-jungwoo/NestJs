@@ -6,6 +6,13 @@ export const LOGIN_ERROR_CODES = {
     },
     code: 'USER_ID_ALREADY_EXISTS',
   },
+  USER_EMAIL_ALREADY_EXISTS: {
+    messages: {
+      en: 'Email is already exists',
+      ko: '해당 이메일이 이미 존재합니다.',
+    },
+    code: 'USER_EMAIL_ALREADY_EXISTS',
+  },
   INVALID_PASSWORD: {
     messages: {
       en: 'Password is invalid',
