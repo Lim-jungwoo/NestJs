@@ -1,10 +1,11 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DBType } from 'src/types/env';
 
 export const typeOrmConfig = async (
   configService: ConfigService,
 ): Promise<TypeOrmModuleOptions> => ({
-  type: 'mysql',
+  type: configService.get<string>('DB_TYPE') as DBType,
   host: configService.get<string>('DB_HOST'),
   port: configService.get<number>('DB_PORT'),
   username: configService.get<string>('DB_USER'),
