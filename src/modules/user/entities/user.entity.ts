@@ -6,7 +6,7 @@ export class User extends AbstractEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column({ unique: true })

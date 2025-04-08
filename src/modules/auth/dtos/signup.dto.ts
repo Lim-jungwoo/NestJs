@@ -1,11 +1,3 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { CreateUserDto } from 'src/modules/user/dtos/create-user.dto';
 
-export class SignUpDto {
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-}
+export class SignUpDto extends CreateUserDto {}

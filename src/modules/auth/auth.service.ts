@@ -1,21 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpDto } from './dtos/signup.dto';
-import { SignInDto } from './dtos/signin.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { CustomException } from 'src/common/exceptions/custom-exception';
 import { LOGIN_ERROR_CODES } from 'src/common/errors/login-error-codes';
+import { UserService } from '../user/user.service';
+import * as bcrypt from 'bcrypt';
+import { UserDto } from '../user/dtos/user.dto';
+import { SignUpDto } from './dtos/signup.dto';
+import { SignInDto } from './dtos/signin.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
-
-  // 임시 데이터 저장
-  signUpData: SignUpDto[] = [];
 
   generateJwtAccessToken(payload: JwtPayload) {
     return this.jwtService.sign(payload, {
@@ -31,41 +32,33 @@ export class AuthService {
     });
   }
 
-  async signUp(signUpDto: SignUpDto) {
-    const existingIds = new Set(
-      this.signUpData.map((signUpData) => signUpData.id),
-    );
-
-    if (existingIds.has(signUpDto.id)) {
-      throw new CustomException(LOGIN_ERROR_CODES.USER_ID_ALREADY_EXISTS.code);
-    }
-
-    this.signUpData.push(signUpDto);
-
-    return 'OK';
+  async signUp(dto: SignUpDto): Promise<UserDto> {
+    const user = await this.userService.create(dto);
+    return user;
   }
 
-  async signIn(signInDto: SignInDto) {
-    const userMap = new Map(
-      this.signUpData.map((user) => [user.id, user.password]),
+  async signIn(
+    signInDto: SignInDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.userService.getOneWithPasswordByEmail(
+      signInDto.email,
     );
 
-    if (userMap.has(signInDto.id)) {
-      const storedPassword = userMap.get(signInDto.id);
-
-      if (storedPassword !== signInDto.password) {
-        throw new CustomException(LOGIN_ERROR_CODES.INVALID_PASSWORD.code);
-      }
-
-      const accessToken = this.generateJwtAccessToken({ sub: signInDto.id });
-      const refreshToken = this.generateJwtRefreshToken({ sub: signInDto.id });
-
-      return {
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      };
+    const storedPassword = user.password;
+    const isPasswordValid = await bcrypt.compare(
+      signInDto.password,
+      storedPassword,
+    );
+    if (!isPasswordValid) {
+      throw new CustomException(LOGIN_ERROR_CODES.INVALID_PASSWORD.code);
     }
 
-    throw new CustomException(LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code);
+    const accessToken = this.generateJwtAccessToken({ sub: user.id });
+    const refreshToken = this.generateJwtRefreshToken({ sub: user.id });
+
+    return {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    };
   }
 }

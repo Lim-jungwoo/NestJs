@@ -17,26 +17,88 @@ export class UserService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  async findOne(id: number): Promise<UserDto> {
+  // ========== 🔍 조회 (Read) ==========
+  async findOneById(id: number): Promise<UserDto> {
     const user = await this.userRepo.findOneBy({ id });
+    return toDto(UserDto, user);
+  }
+
+  async findOneByEmail(email: string): Promise<UserDto> {
+    const user = await this.userRepo.findOneBy({ email });
+    return toDto(UserDto, user);
+  }
+
+  async findOneByNickname(nickname: string): Promise<UserDto> {
+    const user = await this.userRepo.findOneBy({ nickname });
+    return toDto(UserDto, user);
+  }
+
+  async getOneById(id: number): Promise<UserDto> {
+    const user = await this.findOneById(id);
     if (!user)
       throw new CustomException(
         LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
         HttpStatus.NOT_FOUND,
       );
+    return toDto(UserDto, user);
+  }
+
+  async getOneByEmail(email: string): Promise<UserDto> {
+    const user = await this.findOneByEmail(email);
+    if (!user)
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_EMAIL_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    return toDto(UserDto, user);
+  }
+
+  async getOneByNickname(nickname: string): Promise<UserDto> {
+    const user = await this.findOneByNickname(nickname);
+    if (!user)
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_NICKNAME_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    return toDto(UserDto, user);
+  }
+
+  // ========== 🔐 인증용 (로그인 시 사용) ==========
+  async findOneWithPasswordByEmail(email: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { email },
+      select: ['id', 'email', 'password', 'nickname'],
+    });
+  }
+
+  async getOneWithPasswordByEmail(email: string): Promise<User> {
+    const user = await this.findOneWithPasswordByEmail(email);
+    if (!user) {
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_EMAIL_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    }
     return user;
   }
 
-  async findOneByEmail(email: string): Promise<UserDto> {
-    const user = await this.userRepo.findOneBy({ email });
-    return user;
-  }
-
+  // ========== 🆕 생성 (Create) ==========
   async create(dto: CreateUserDto): Promise<UserDto> {
-    const exists = await this.findOneByEmail(dto.email);
-    if (exists) {
+    const [emailExists, nicknameExists] = await Promise.all([
+      this.existsByEmail(dto.email),
+      this.existsByNickname(dto.nickname),
+    ]);
+
+    if (emailExists) {
       throw new CustomException(
         LOGIN_ERROR_CODES.USER_EMAIL_ALREADY_EXISTS.code,
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    if (nicknameExists) {
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_NICKNAME_ALREADY_EXISTS.code,
         HttpStatus.CONFLICT,
       );
     }
@@ -53,8 +115,9 @@ export class UserService {
     return toDto(UserDto, user);
   }
 
+  // ========== ✏️ 수정 (Update) ==========
   async update(dto: UpdateUserDto): Promise<UserDto> {
-    const user = await this.findOne(dto.id);
+    const user = await this.getOneById(dto.id);
 
     if (dto.nickname) {
       user.nickname = dto.nickname;
@@ -64,9 +127,30 @@ export class UserService {
     return toDto(UserDto, user);
   }
 
+  // ========== ❌ 삭제 (Delete) ==========
   async delete(id: number) {
-    const user = await this.findOne(id);
+    const user = await this.getOneById(id);
 
     await this.userRepo.softDelete(user);
   }
+
+  // ========== ✅ 존재 여부 확인 (Exists) ==========
+  async existsById(id: number): Promise<boolean> {
+    const user = await this.userRepo.findOneBy({ id });
+    return !!user;
+  }
+
+  async existsByEmail(email: string): Promise<boolean> {
+    const user = await this.userRepo.findOneBy({ email });
+    return !!user;
+  }
+
+  async existsByNickname(nickname: string): Promise<boolean> {
+    const user = await this.userRepo.findOneBy({ nickname });
+    return !!user;
+  }
+
+  // ========== 🧪 검증 (Validation) ==========
+
+  // ========== 📦 기타 유틸성 기능 (Utils) ==========
 }
