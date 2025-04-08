@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as fs from 'fs';
 import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   //# SSL
@@ -28,6 +29,12 @@ async function bootstrap() {
   console.log('HOST: ', host);
   console.log('PORT: ', port);
   console.log('==========================');
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   await app.listen(3000);
 }
