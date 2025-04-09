@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { CustomException } from 'src/common/exceptions/custom-exception';
-import { LOGIN_ERROR_CODES } from 'src/common/errors/login-error-codes';
+import { LOGIN_ERROR_CODES } from 'src/constants/errors/login-error-codes';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { UserDto } from '../user/dtos/user.dto';

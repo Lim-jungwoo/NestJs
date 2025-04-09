@@ -6,7 +6,7 @@ import { UserDto } from './dtos/user.dto';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { CustomException } from 'src/common/exceptions/custom-exception';
-import { LOGIN_ERROR_CODES } from 'src/common/errors/login-error-codes';
+import { LOGIN_ERROR_CODES } from 'src/constants/errors/login-error-codes';
 import { toDto } from 'src/common/utils/entity-to-dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 

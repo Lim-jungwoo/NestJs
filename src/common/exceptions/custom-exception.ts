@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { LANGUAGES } from 'src/constants/lang-constants';
-import { getErrorMessage } from '../errors/error-utils';
+import { getErrorMessage } from '../utils/error-utils';
 
 export class CustomException extends HttpException {
   constructor(

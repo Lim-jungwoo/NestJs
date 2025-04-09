@@ -2,8 +2,8 @@ import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
-import { JWT_ERROR_CODES } from 'src/common/errors/jwt-error-codes';
-import { handleJwtError } from 'src/common/errors/jwt-error-utils';
+import { JWT_ERROR_CODES } from 'src/constants/errors/jwt-error-codes';
+import { handleJwtError } from 'src/common/utils/jwt-error-utils';
 import { CustomException } from 'src/common/exceptions/custom-exception';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { JWT_ERROR_CODES } from './jwt-error-codes';
+import { JWT_ERROR_CODES } from '../../constants/errors/jwt-error-codes';
 import { CustomException } from '../exceptions/custom-exception';
 
 export function handleJwtError(error: any): void {
