@@ -12,7 +12,7 @@ src/
 ├── common/            # 예외 필터, 유틸 등
 ├── constants/         # 상수 정의 (에러 코드, 메시지 등)
 ├── database/          # DB 설정, 데이터소스 정의
-├── migrations/        # TypeORM 마이그레이션 파일
+│   └── migrations/    # TypeORM 마이그레이션 파일
 ├── modules/           # 도메인별 모듈 (auth, user 등)
 ├── types/             # 전역 타입, 인터페이스
 └── main.ts            # 애플리케이션 진입점

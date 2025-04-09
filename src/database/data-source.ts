@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as path from 'path';
-import { DBType } from './types/env';
+import { DBType } from '../types/env';
 
 export const MySqlDataSource = new DataSource({
   type: (process.env.DB_TYPE as DBType) || 'mysql',
