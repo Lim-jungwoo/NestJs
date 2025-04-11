@@ -72,7 +72,7 @@ Closes #42
 | `ci`       | 🔁     | CI 관련 설정 수정 (GitHub Actions 등)               |
 | `build`    | 🏗️     | 빌드 관련 파일 수정 (예: package.json, webpack 등)  |
 | `revert`   | ⏪     | 이전 커밋 되돌리기                                  |
-| `study`    | 🧠     | 학습용 파일, 정리 문서 작성 또는 업데이트           |
+| `study`    | 📝     | 학습용 파일, 정리 문서 작성 또는 업데이트           |
 
 ---
 
