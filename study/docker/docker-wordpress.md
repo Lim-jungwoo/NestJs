@@ -110,7 +110,6 @@ export mysql_auth_plugin=mysql_native_password
 ## 🧩 docker-compose 버전 예시
 
 ```yaml
-version: '3.8'
 services:
   db:
     image: mysql

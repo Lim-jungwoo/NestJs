@@ -49,6 +49,15 @@ docker volume ls        # 볼륨 목록
 docker volume prune     # 사용하지 않는 볼륨 제거
 ```
 
+| 명령어                   | 설명                         |
+| ------------------------ | ---------------------------- |
+| `docker compose up -d`   | 백그라운드로 컨테이너 실행   |
+| `docker compose down`    | 컨테이너 중지 및 삭제        |
+| `docker compose logs -f` | 실시간 로그 보기             |
+| `docker compose ps`      | 실행 중인 컨테이너 목록 확인 |
+
+---
+
 ---
 
 ## 🧠 정리
@@ -74,17 +83,93 @@ docker rm <이름 또는 ID>     # 삭제
 
 ---
 
-## 🛠️ Dockerfile 작성 예시
+좋아요! `Dockerfile`은 **Docker 이미지의 빌드 방법을 정의하는 스크립트** 파일이에요. 즉, 어떤 운영체제를 기반으로, 어떤 소프트웨어를 설치하고, 어떤 파일을 복사하고, 어떤 명령어를 실행할지를 적어두는 일종의 **설명서**라고 보면 됩니다.
+
+---
+
+## 🧱 Dockerfile 기본 구조
 
 ```Dockerfile
-# Node.js 앱 예시
+# 1. 베이스 이미지 설정
 FROM node:18
+
+# 2. 작업 디렉터리 설정
 WORKDIR /app
+
+# 3. 종속성 설치
+COPY package.json ./
+RUN npm install
+
+# 4. 앱 소스 복사
+COPY . .
+
+# 5. 앱 빌드 또는 실행
+CMD ["npm", "start"]
+```
+
+---
+
+## 📘 주요 명령어 설명
+
+| 명령어       | 역할                                                                    |
+| ------------ | ----------------------------------------------------------------------- |
+| `FROM`       | 베이스 이미지 지정 (ex: `node`, `python`, `alpine`, `ubuntu` 등)        |
+| `WORKDIR`    | 컨테이너 내부 작업 디렉토리 설정                                        |
+| `COPY`       | 로컬 파일 → 컨테이너 내부로 복사                                        |
+| `RUN`        | 이미지 빌드 시 실행할 명령 (ex: `apt install`, `npm install`)           |
+| `CMD`        | 컨테이너가 실행될 때 기본적으로 실행할 명령                             |
+| `EXPOSE`     | 외부에 노출할 포트 (정보 제공용, 실제 포트 노출은 docker run 옵션 필요) |
+| `ENV`        | 환경 변수 설정                                                          |
+| `ENTRYPOINT` | CMD와 유사하지만, 고정된 명령 실행용 (고급 설정 시 사용)                |
+
+---
+
+## 📦 예시: NestJS Dockerfile
+
+```Dockerfile
+# 베이스 이미지
+FROM node:18
+
+# 작업 디렉터리 생성
+WORKDIR /usr/src/app
+
+# 종속성 파일 복사 후 설치
 COPY package*.json ./
 RUN npm install
+
+# 전체 소스 복사
 COPY . .
-CMD ["npm", "run", "start:dev"]
+
+# 포트 노출
+EXPOSE 3000
+
+# 앱 실행
+CMD ["npm", "run", "start:prod"]
 ```
+
+---
+
+## 🔨 이미지 빌드 & 실행
+
+```bash
+# Dockerfile 기준으로 이미지 생성
+docker build -t my-nest-app .
+
+# 이미지 기반 컨테이너 실행
+docker run -p 3000:3000 my-nest-app
+```
+
+---
+
+## 🧾 정리
+
+| 개념         | 설명                            |
+| ------------ | ------------------------------- |
+| Dockerfile   | 이미지를 만드는 "설명서"        |
+| docker build | Dockerfile을 읽어서 이미지 생성 |
+| docker run   | 생성한 이미지로 컨테이너 실행   |
+
+---
 
 ```bash
 # 이미지 빌드
@@ -99,7 +184,6 @@ docker run -p 3000:3000 my-nest-app
 ## 📚 docker-compose 기본 예시
 
 ```yaml
-version: '3.8'
 services:
   db:
     image: mysql:8.0
@@ -118,6 +202,39 @@ services:
     depends_on:
       - db
 ```
+
+## 📁 주요 섹션 설명
+
+| 키           | 설명                                     |
+| ------------ | ---------------------------------------- |
+| `services`   | 컨테이너로 실행할 애플리케이션 목록 정의 |
+| `volumes`    | 서비스 간 공유되는 데이터 볼륨 정의      |
+| `networks`   | (선택) 커스텀 네트워크 설정              |
+| `build`      | 도커파일 빌드 시 사용 (예: `build: .`)   |
+| `depends_on` | 의존 관계 지정 (ex: app → db)            |
+
+---
+
+## 📦 환경 변수 사용
+
+`.env` 파일과 함께:
+
+```yaml
+services:
+  db:
+    image: mysql:${MYSQL_VERSION}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+```
+
+`.env` 예시:
+
+```
+MYSQL_VERSION=8.0
+MYSQL_ROOT_PASSWORD=secret
+```
+
+---
 
 ```bash
 # 여러 컨테이너를 한 번에 실행
@@ -148,7 +265,6 @@ project-root/
 ### 🐳 docker-compose.yml
 
 ```yaml
-version: '3.8'
 services:
   db:
     image: mysql:8.0
