@@ -18,6 +18,16 @@ export class UserService {
   ) {}
 
   // ========== 🔍 조회 (Read) ==========
+  async findAll(): Promise<UserDto[]> {
+    const users = await this.userRepo.find();
+    return users.map((user) => toDto(UserDto, user));
+  }
+
+  async findMe(id: number): Promise<UserDto> {
+    const user = await this.userRepo.findOneBy({ id });
+    return toDto(UserDto, user);
+  }
+
   async findOneById(id: number): Promise<UserDto> {
     const user = await this.userRepo.findOneBy({ id });
     return toDto(UserDto, user);
@@ -35,6 +45,26 @@ export class UserService {
 
   async getOneById(id: number): Promise<UserDto> {
     const user = await this.findOneById(id);
+    if (!user)
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    return toDto(UserDto, user);
+  }
+
+  async getAll(): Promise<UserDto[]> {
+    const users = await this.findAll();
+    if (!users || users.length === 0)
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    return users.map((user) => toDto(UserDto, user));
+  }
+
+  async getMe(id: number): Promise<UserDto> {
+    const user = await this.findMe(id);
     if (!user)
       throw new CustomException(
         LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
