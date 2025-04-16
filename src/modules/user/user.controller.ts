@@ -48,4 +48,10 @@ export class UserController {
   updateMe(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.updateMe(req.user.id, updateUserDto);
   }
+
+  // ========== ❌ 삭제 (Delete) ==========
+  @Delete('me')
+  deleteMe(@Req() req) {
+    return this.userService.deleteMe(req.user.id);
+  }
 }

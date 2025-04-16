@@ -186,6 +186,12 @@ export class UserService {
     await this.userRepo.softDelete(user);
   }
 
+  async deleteMe(id: number) {
+    const user = await this.getOneById(id);
+
+    await this.userRepo.softDelete(user);
+  }
+
   // ========== ✅ 존재 여부 확인 (Exists) ==========
   async existsById(id: number): Promise<boolean> {
     const user = await this.userRepo.findOneBy({ id });
