@@ -27,6 +27,13 @@ export const LOGIN_ERROR_CODES = {
     },
     code: 'INVALID_PASSWORD',
   },
+  USER_NOT_FOUND: {
+    messages: {
+      en: "User doesn't exist",
+      ko: '유저가 존재하지 않습니다.',
+    },
+    code: 'USER_NOT_FOUND',
+  },
   USER_ID_NOT_FOUND: {
     messages: {
       en: "Id doesn't exist",
