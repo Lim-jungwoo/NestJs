@@ -157,6 +157,28 @@ export class UserService {
     return toDto(UserDto, user);
   }
 
+  async updateMe(id: number, dto: UpdateUserDto): Promise<UserDto> {
+    const user = await this.getOneById(id);
+    if (dto.nickname) {
+      user.nickname = dto.nickname;
+    }
+
+    await this.userRepo.save(user);
+    return toDto(UserDto, user);
+  }
+
+  async updatePassword(id: number, password: string): Promise<UserDto> {
+    const user = await this.userRepo.findOne({
+      where: { id },
+      select: ['id', 'email', 'password', 'nickname'],
+    });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+
+    await this.userRepo.save(user);
+    return toDto(UserDto, user);
+  }
+
   // ========== ❌ 삭제 (Delete) ==========
   async delete(id: number) {
     const user = await this.getOneById(id);

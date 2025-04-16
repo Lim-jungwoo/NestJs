@@ -42,4 +42,10 @@ export class UserController {
   findOneByNickname(@Param('nickname') nickname: string) {
     return this.userService.getOneByNickname(nickname);
   }
+
+  // ========== ✏️ 수정 (Update) ==========
+  @Patch('me')
+  updateMe(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.updateMe(req.user.id, updateUserDto);
+  }
 }
