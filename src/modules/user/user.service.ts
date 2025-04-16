@@ -192,6 +192,33 @@ export class UserService {
     await this.userRepo.softDelete(user);
   }
 
+  // ========== ♻️ 복구 (Restore) ==========
+  async restore(id: number): Promise<UserDto> {
+    const result = await this.userRepo.restore(id);
+    if (result.affected === 0) {
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const restoredUser = await this.userRepo.findOneBy({ id });
+    return toDto(UserDto, restoredUser);
+  }
+
+  async restoreMe(userId: number): Promise<UserDto> {
+    const result = await this.userRepo.restore(userId);
+    if (result.affected === 0) {
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const restoredUser = await this.userRepo.findOneBy({ id: userId });
+    return toDto(UserDto, restoredUser);
+  }
+
   // ========== ✅ 존재 여부 확인 (Exists) ==========
   async existsById(id: number): Promise<boolean> {
     const user = await this.userRepo.findOneBy({ id });

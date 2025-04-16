@@ -54,4 +54,11 @@ export class UserController {
   deleteMe(@Req() req) {
     return this.userService.deleteMe(req.user.id);
   }
+
+  // ========== ♻️ 복구 (Restore) ==========
+  @Patch('restore/me')
+  restoreMe(@Req() req) {
+    return this.userService.restoreMe(req.user.id);
+  }
+  // ========== 📦 기타 유틸성 기능 (Utils) ==========
 }
