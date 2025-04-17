@@ -1,10 +1,10 @@
 export const LOGIN_ERROR_CODES = {
-  USER_ID_ALREADY_EXISTS: {
+  USER_LOGIN_ID_ALREADY_EXISTS: {
     messages: {
-      en: 'Id is already exists',
-      ko: '해당 아이디가 이미 존재합니다.',
+      en: 'Login id is already exists',
+      ko: '해당 로그인 아이디가 이미 존재합니다.',
     },
-    code: 'USER_ID_ALREADY_EXISTS',
+    code: 'USER_LOGIN_ID_ALREADY_EXISTS',
   },
   USER_EMAIL_ALREADY_EXISTS: {
     messages: {
