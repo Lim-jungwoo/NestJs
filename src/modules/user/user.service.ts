@@ -9,6 +9,7 @@ import { CustomException } from 'src/common/exceptions/custom-exception';
 import { LOGIN_ERROR_CODES } from 'src/constants/errors/login-error-codes';
 import { toDto } from 'src/common/utils/entity-to-dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { USER_SELECT_FILEDS } from './selects/user.select';
 
 @Injectable()
 export class UserService {
@@ -23,13 +24,13 @@ export class UserService {
     return users.map((user) => toDto(UserDto, user));
   }
 
-  async findMe(id: number): Promise<UserDto> {
-    const user = await this.userRepo.findOneBy({ id });
+  async findMe(userId: number): Promise<UserDto> {
+    const user = await this.userRepo.findOneBy({ id: userId });
     return toDto(UserDto, user);
   }
 
-  async findOneById(id: number): Promise<UserDto> {
-    const user = await this.userRepo.findOneBy({ id });
+  async findOneById(userId: number): Promise<UserDto> {
+    const user = await this.userRepo.findOneBy({ id: userId });
     return toDto(UserDto, user);
   }
 
@@ -43,8 +44,8 @@ export class UserService {
     return toDto(UserDto, user);
   }
 
-  async getOneById(id: number): Promise<UserDto> {
-    const user = await this.findOneById(id);
+  async getOneById(userId: number): Promise<UserDto> {
+    const user = await this.findOneById(userId);
     if (!user)
       throw new CustomException(
         LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
@@ -63,8 +64,8 @@ export class UserService {
     return users.map((user) => toDto(UserDto, user));
   }
 
-  async getMe(id: number): Promise<UserDto> {
-    const user = await this.findMe(id);
+  async getMe(userId: number): Promise<UserDto> {
+    const user = await this.findMe(userId);
     if (!user)
       throw new CustomException(
         LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
@@ -97,7 +98,7 @@ export class UserService {
   async findOneWithPasswordByEmail(email: string): Promise<User | null> {
     return this.userRepo.findOne({
       where: { email },
-      select: ['id', 'email', 'password', 'nickname'],
+      select: USER_SELECT_FILEDS,
     });
   }
 
@@ -113,11 +114,19 @@ export class UserService {
   }
 
   // ========== 🆕 생성 (Create) ==========
-  async create(dto: CreateUserDto): Promise<UserDto> {
-    const [emailExists, nicknameExists] = await Promise.all([
-      this.existsByEmail(dto.email),
-      this.existsByNickname(dto.nickname),
+  async create(createUserDto: CreateUserDto): Promise<UserDto> {
+    const [loginIdExists, emailExists, nicknameExists] = await Promise.all([
+      this.existsByLoginId(createUserDto.loginId),
+      this.existsByEmail(createUserDto.email),
+      this.existsByNickname(createUserDto.nickname),
     ]);
+
+    if (loginIdExists) {
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_LOGIN_ID_ALREADY_EXISTS.code,
+        HttpStatus.CONFLICT,
+      );
+    }
 
     if (emailExists) {
       throw new CustomException(
@@ -133,12 +142,13 @@ export class UserService {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.userRepo.create({
-      email: dto.email,
+      loginId: createUserDto.loginId,
+      email: createUserDto.email,
       password: hashedPassword,
-      nickname: dto.nickname,
+      nickname: createUserDto.nickname,
     });
 
     await this.userRepo.save(user);
@@ -146,31 +156,34 @@ export class UserService {
   }
 
   // ========== ✏️ 수정 (Update) ==========
-  async update(dto: UpdateUserDto): Promise<UserDto> {
-    const user = await this.getOneById(dto.id);
+  async update(userId: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
+    const user = await this.getOneById(userId);
 
-    if (dto.nickname) {
-      user.nickname = dto.nickname;
+    if (updateUserDto.nickname) {
+      user.nickname = updateUserDto.nickname;
     }
 
     await this.userRepo.save(user);
     return toDto(UserDto, user);
   }
 
-  async updateMe(id: number, dto: UpdateUserDto): Promise<UserDto> {
-    const user = await this.getOneById(id);
-    if (dto.nickname) {
-      user.nickname = dto.nickname;
+  async updateMe(
+    userId: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserDto> {
+    const user = await this.getOneById(userId);
+    if (updateUserDto.nickname) {
+      user.nickname = updateUserDto.nickname;
     }
 
     await this.userRepo.save(user);
     return toDto(UserDto, user);
   }
 
-  async updatePassword(id: number, password: string): Promise<UserDto> {
+  async updatePassword(userId: number, password): Promise<UserDto> {
     const user = await this.userRepo.findOne({
-      where: { id },
-      select: ['id', 'email', 'password', 'nickname'],
+      where: { id: userId },
+      select: USER_SELECT_FILEDS,
     });
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
@@ -180,21 +193,21 @@ export class UserService {
   }
 
   // ========== ❌ 삭제 (Delete) ==========
-  async delete(id: number) {
-    const user = await this.getOneById(id);
+  async delete(userId: number) {
+    const user = await this.getOneById(userId);
 
     await this.userRepo.softDelete(user);
   }
 
-  async deleteMe(id: number) {
-    const user = await this.getOneById(id);
+  async deleteMe(userId: number) {
+    const user = await this.getOneById(userId);
 
     await this.userRepo.softDelete(user);
   }
 
   // ========== ♻️ 복구 (Restore) ==========
-  async restore(id: number): Promise<UserDto> {
-    const result = await this.userRepo.restore(id);
+  async restore(userId: number): Promise<UserDto> {
+    const result = await this.userRepo.restore(userId);
     if (result.affected === 0) {
       throw new CustomException(
         LOGIN_ERROR_CODES.USER_ID_NOT_FOUND.code,
@@ -202,7 +215,7 @@ export class UserService {
       );
     }
 
-    const restoredUser = await this.userRepo.findOneBy({ id });
+    const restoredUser = await this.userRepo.findOneBy({ id: userId });
     return toDto(UserDto, restoredUser);
   }
 
@@ -220,8 +233,13 @@ export class UserService {
   }
 
   // ========== ✅ 존재 여부 확인 (Exists) ==========
-  async existsById(id: number): Promise<boolean> {
-    const user = await this.userRepo.findOneBy({ id });
+  async existsById(userId: number): Promise<boolean> {
+    const user = await this.userRepo.findOneBy({ id: userId });
+    return !!user;
+  }
+
+  async existsByLoginId(loginId: string): Promise<boolean> {
+    const user = await this.userRepo.findOneBy({ loginId });
     return !!user;
   }
 

@@ -1,8 +1,7 @@
-import { OmitType } from '@nestjs/mapped-types';
 import { BaseUserDto } from './base-user.dto';
 import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
-export class CreateUserDto extends OmitType(BaseUserDto, ['id'] as const) {
+export class CreateUserDto extends BaseUserDto {
   @IsString()
   @MinLength(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' })
   @MaxLength(32, { message: '비밀번호는 최대 32자까지 가능합니다.' })

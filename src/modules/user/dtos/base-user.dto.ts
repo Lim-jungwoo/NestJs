@@ -3,7 +3,8 @@ import { IsEmail, IsString } from 'class-validator';
 
 export class BaseUserDto {
   @Expose()
-  id: number;
+  @IsString()
+  loginId: string;
 
   @Expose()
   @IsEmail()
