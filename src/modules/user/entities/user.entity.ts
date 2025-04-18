@@ -1,5 +1,6 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import { Column, Entity } from 'typeorm';
+import { Role } from 'src/modules/permission/entities/role.entity';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 
 @Entity()
 export class User extends AbstractEntity {
@@ -14,4 +15,8 @@ export class User extends AbstractEntity {
 
   @Column({ unique: true })
   nickname: string;
+
+  @ManyToMany(() => Role)
+  @JoinTable()
+  roles: Role[];
 }
