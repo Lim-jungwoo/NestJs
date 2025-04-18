@@ -41,6 +41,13 @@ export const LOGIN_ERROR_CODES = {
     },
     code: 'USER_ID_NOT_FOUND',
   },
+  USER_LOGIN_ID_NOT_FOUND: {
+    messages: {
+      en: "Login id doesn't exist",
+      ko: '로그인 아이디가 존재하지 않습니다.',
+    },
+    code: 'USER_LOGIN_ID_NOT_FOUND',
+  },
   USER_EMAIL_NOT_FOUND: {
     messages: {
       en: "Email doesn't exist",
