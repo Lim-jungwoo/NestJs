@@ -40,8 +40,8 @@ export class AuthService {
   async signIn(
     signInDto: SignInDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.userService.getOneWithPasswordByEmail(
-      signInDto.email,
+    const user = await this.userService.getOneWithPasswordByLoginId(
+      signInDto.loginId,
     );
 
     const storedPassword = user.password;
@@ -53,8 +53,8 @@ export class AuthService {
       throw new CustomException(LOGIN_ERROR_CODES.INVALID_PASSWORD.code);
     }
 
-    const accessToken = this.generateJwtAccessToken({ sub: user.id });
-    const refreshToken = this.generateJwtRefreshToken({ sub: user.id });
+    const accessToken = this.generateJwtAccessToken({ id: user.id });
+    const refreshToken = this.generateJwtRefreshToken({ id: user.id });
 
     return {
       accessToken: accessToken,

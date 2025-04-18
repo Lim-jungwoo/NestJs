@@ -25,6 +25,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
    * @returns 반환된 값은 Request에 속성으로 추가된다. 객체를 꼭 반환해야 JWT 검증에 성공한다.
    */
   async validate(req, payload: JwtPayload) {
-    return { id: payload.sub };
+    return { id: payload.id };
   }
 }

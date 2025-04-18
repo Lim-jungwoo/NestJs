@@ -102,11 +102,29 @@ export class UserService {
     });
   }
 
+  async findOneWithPasswordByLoginId(loginId: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { loginId },
+      select: USER_SELECT_FILEDS,
+    });
+  }
+
   async getOneWithPasswordByEmail(email: string): Promise<User> {
     const user = await this.findOneWithPasswordByEmail(email);
     if (!user) {
       throw new CustomException(
         LOGIN_ERROR_CODES.USER_EMAIL_NOT_FOUND.code,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return user;
+  }
+
+  async getOneWithPasswordByLoginId(loginId: string): Promise<User> {
+    const user = await this.findOneWithPasswordByLoginId(loginId);
+    if (!user) {
+      throw new CustomException(
+        LOGIN_ERROR_CODES.USER_LOGIN_ID_NOT_FOUND.code,
         HttpStatus.NOT_FOUND,
       );
     }
