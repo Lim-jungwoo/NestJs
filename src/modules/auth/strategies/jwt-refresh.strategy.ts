@@ -2,17 +2,24 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { RefreshTokenPayload } from '../jwt/interfaces/refresh-token-payload.interface';
+import * as fs from 'fs';
+import { resolvePathSafe } from 'src/common/utils/path.util';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(private readonly configServce: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     super({
       ignoreExpiration: false,
-      secretOrKey: configServce.get<string>('JWT_REFRESH_SECRET'),
+      secretOrKey: fs.readFileSync(
+        resolvePathSafe(
+          configService.get<string>('JWT_REFRESH_PUBLIC_KEY_PATH'),
+        ),
+      ),
+      algorithms: [configService.get<string>('JWT_REFRESH_ALGORITHM')],
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       passReqToCallback: true,
     });
@@ -24,7 +31,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
    * @param payload JWT 유저 정보
    * @returns 반환된 값은 Request에 속성으로 추가된다. 객체를 꼭 반환해야 JWT 검증에 성공한다.
    */
-  async validate(req, payload: JwtPayload) {
-    return { id: payload.id };
+  async validate(req, payload: RefreshTokenPayload) {
+    return payload;
   }
 }

@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { AccessTokenPayload } from '../jwt/interfaces/access-token-payload.interface';
+import * as fs from 'fs';
+import { resolvePathSafe } from 'src/common/utils/path.util';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -12,7 +14,12 @@ export class JwtAccessStrategy extends PassportStrategy(
   constructor(private readonly configService: ConfigService) {
     super({
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_ACCESS_SECRET'),
+      secretOrKey: fs.readFileSync(
+        resolvePathSafe(
+          configService.get<string>('JWT_ACCESS_PUBLIC_KEY_PATH'),
+        ),
+      ),
+      algorithms: [configService.get<string>('JWT_ACCESS_ALGORITHM')],
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       passReqToCallback: true,
     });
@@ -24,7 +31,7 @@ export class JwtAccessStrategy extends PassportStrategy(
    * @param payload JWT 유저 정보
    * @returns 반환된 값은 Request에 속성으로 추가된다. 객체를 꼭 반환해야 JWT 검증에 성공한다.
    */
-  validate(req, payload: JwtPayload) {
-    return { id: payload.id };
+  validate(req, payload: AccessTokenPayload) {
+    return payload;
   }
 }
