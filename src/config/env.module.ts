@@ -3,13 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import * as path from 'path';
 import { envSchema } from './env.schema';
 import { TypedConfigService } from './typed-config.service';
-import { NODE_ENV } from './constants';
+import { ENV_PATH } from './constants';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `${path.join(__dirname, `.${NODE_ENV}.env`)}`,
+      envFilePath: `${path.join(__dirname, ENV_PATH)}`,
       cache: true,
       isGlobal: true,
       validate: (env) => {
