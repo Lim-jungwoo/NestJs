@@ -1,16 +1,13 @@
-import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DBType } from 'src/types/env';
+import { validatedEnv } from 'src/config/env';
 
-export const typeOrmConfig = async (
-  configService: ConfigService,
-): Promise<TypeOrmModuleOptions> => ({
-  type: configService.get<string>('DB_TYPE') as DBType,
-  host: configService.get<string>('DB_HOST'),
-  port: configService.get<number>('DB_PORT'),
-  username: configService.get<string>('DB_USER'),
-  password: configService.get<string>('DB_PASS'),
-  database: configService.get<string>('DB_NAME'),
+export const typeOrmConfig = async (): Promise<TypeOrmModuleOptions> => ({
+  type: validatedEnv.DB_TYPE,
+  host: validatedEnv.DB_HOST,
+  port: validatedEnv.DB_PORT,
+  username: validatedEnv.DB_USER,
+  password: validatedEnv.DB_PASS,
+  database: validatedEnv.DB_NAME,
   entities: [__dirname + '/../**/*.entity.{ts,js}'],
   synchronize: false,
 });
